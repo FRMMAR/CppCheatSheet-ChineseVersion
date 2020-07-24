@@ -1,9 +1,15 @@
 # C++ Syntax Cheat Sheet
+# C++ 语法小抄
 
 ## Preface
 Since the C++ language varies so heavily between versions (e.g. C++0x, C++11, C++17, etc.), I will preface this cheat sheet by saying that the majority of the examples here target C++0x or c++11, as those are the versions that I am most familiar with. I come from the aerospace industry (embedded flight software) in which we purposefully don't use the latest technologies for safety reasons, so most of the code I write is in C++0x and sometimes C++11. Nevertheless, the basic concepts of C++ and object oriented programming still generally apply to both past and future versions of the language.
+## 前言
+C++语言的各种版本（C++0x，C++11，C++17）之间差别很大，笔者最熟悉C++0x和C++11，故此文大多示例基于C++0x和C++11。
+笔者来自航空行业，由于安全原因并不使用最新版本的C++语言，所以笔者缩写代码大多基于C++0x和C++11。
+然而，C++和OOP的基本概念仍一直应用于过去版本和未来本本的语言体系中。
 
 ## Table of Contents
+## 目录
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:0 orderedList:0 -->
 
@@ -50,9 +56,12 @@ Since the C++ language varies so heavily between versions (e.g. C++0x, C++11, C+
 ## 1.0 C++ Classes
 ### 1.1 Class Syntax
 #### 1.1.1 Class Declaration (`.h` file)
+#### 1.1.1 类声明（.h文件）
 Here's a simple class representing a polygon, a shape with any number of sides.
+一个简单的类用来表示多边形——有任意数量边的情况。
 
 The class *declaration* typically goes in the header file, which has the extension `.h` (or, less commonly, `.hpp` to distinguish from C headers). The *declaration* gives the class name, any classes it may extend, declares the members and methods, and declares which members/methods are public, private, or protected. You can think of the declaration as sort of saying: "there will be a thing and here's how it will look like". The declaration is used to inform the compiler about the future essence and use of a particular symbol.
+类的声明 *declaration* 通常出现在头文件中，头文件通常有.h或.hpp的后缀。声明，用来说明类或者类扩展的成员和方法，并且声明成员和方法的访问控制方式：私有、公有、受保护的。你可以理解为类的声明就像是在说“这里应该有什么东西，这个东西看起来应该是这个样子”。声明用来通知编译器未来本质和特定符号的用法。
 
 ```c++
 // File: polygon.h
@@ -62,14 +71,17 @@ The class *declaration* typically goes in the header file, which has the extensi
 class Polygon {
 
 // Private members and methods are only accessible via methods in the class definition
+// 私有成员和方法在类内定义的方法进行访问
 private:
     int num_sides;    	// Number of sides
 
 // Protected members and methods are only accessible in the class definition or by classes who extend this class
+// 受保护的成员和方法只能是类或者扩展类的方法
 protected:
     std::string name;   // Name of the polygon
 
 // Public members and methods are accessible to anyone who creates an instance of the class
+// 公有成员可被任意创建类实例的使用者访问
 public:
     // Constructors
     Polygon(const int num_sides, const std::string & name); // <--- This constructor takes the number of sides and name as arguments
@@ -82,10 +94,13 @@ public:
     void SetName(const std::string & name);
 
 }; // <--- Don't forget the semicolon!
+// 类定义最后要加分号；
 ```
 
 #### 1.1.2 Class Definition (`.cpp` file)
+#### 1.1.2 类定义（.cpp文件）
 The class *definition* typically goes in the `.cpp` file. The *definition* extends the declaration by providing an actual implementation of whatever it is that you're building. Continuing the example from the declaration, the definition can be thought of as saying: "Right, that thing I told you briefly about earlier? Here's how it actually functions". The definition thus provides the compileable implementation.
+类的定义通常在.cpp文件中。定义，通过提供声明的实际实现来拓展声明。接续声明的例子，类的定义就像在说“对呀，这就是之前我在类头文件之内简明提到的，这里就是这个类实际的实现细节”。所以这个定义提供了可编译的实现。
 
 ```c++
 // File: polygon.cpp
@@ -97,6 +112,9 @@ The class *definition* typically goes in the `.cpp` file. The *definition* exten
 // Constructor
 // You must scope the method definitions with the class name (Polygon::)
 // Also, see the section on the 'explicit' keyword for a warning about constructors with exactly one argument
+// 构造器
+// 必须界定类内函数的界限
+// 同时，‘explicit’参数显式指定构造方法必须显式调用
 Polygon::Polygon(const int num_sides, const std::string & name) {
     this->num_sides = num_sides;	// 'this' is a pointer to the instance of the class. Members are accessed via the -> operator
     this->name = name;			// In this case you need to use 'this->...' to avoid shadowing the member variable since the argument shares the same name
@@ -104,6 +122,7 @@ Polygon::Polygon(const int num_sides, const std::string & name) {
 
 // Get the number of sides
 int Polygon::GetNumSides(void) const {	// The 'const' here tells the compiler that you guarantee that you won't modify the object when this function is called. This allows it to perform optimizations that it otherwise may not be able to do
+// 函数后的const是在通知编译器你保证你不会在这个函数内更改对象（成员变量）
     return this->num_sides;
 }
 
@@ -170,10 +189,13 @@ public:
 ```
 
 This is often used for very basic getters and setters, and also for basic constructors. In contrast, you'll nearly always find more complex methods defined in the `.cpp` file. One exception to this is with class templates, in which the entire templated class declaration and definition must reside in the header file.
+上述例子经常在setter、getter和构造器中得到应用。对照来讲，你几乎经常会发现在.cpp文件中有更复杂的方法定义。
+上述情况的一个例外是类模板，全部类模板的声明和定义必须在头文件中。
 
 Another important consideration: If you have getters and setters for all of your members, you may want to reconsider the design of your class. Sometimes having getters and setters for every member is indicative of poor planning of the class design and interface. In particular, setters should be used more thoughtfully. Could a variable be set once in the constructor and left constant thereafter? Does it need to be modified at all? Is it set somewhere else in another method, perhaps even indirectly?
+另一个重要的考虑：如果你对所有的成员都有getter和setter，你可能需要重新考虑你的类的设计。有时候所有的成员都有getter和setter可能意味着你对类的设计和接口缺少计划。具体来讲，setter应该更谨慎地使用。是否需要在构造对象时设定变量初始值并在之后保持不变？变量是否需要被修改？它是否在其他方法中被set，也许甚至不是直接被set？
 
-### 1.2 Inheritance
+### 1.2 Inheritance 继承
 A class can extend another class, meaning that the new class inherits all of the data from the other class, and can also override its methods, add new members, etc. Inheritance is the key feature required for [polymorphism](#13-class-polymorphism).
 
 It is important to note that this feature is often overused by beginners and sometimes unnecessary hierarchies are created, adding to the overally complexity. There are some good alternatives such as [composition](https://en.wikipedia.org/wiki/Composition_over_inheritance) and [aggregation](https://stackoverflow.com/a/269535), although, of course, sometimes inheritance is exactly what is needed.
@@ -315,7 +337,7 @@ public:
 
 So, we have our two classes, `Rectangle` and `Circle`, but in this case inheriting from `Shape` isn't really buying us anything. To make use of polymorphism we need to pull the common `Area()` method into the base class as follows, by using virtual methods.
 
-#### 1.3.2 Virtual Methods
+#### 1.3.2 Virtual Methods 虚方法
 Imagine you want to have a pointer to a shape with which you want to compute the area of that shape. For example, maybe you want to hold shapes in some sort of data structure, but you don't want to limit yourself to just rectangles or just circles; you want to support all objects that call themselves a 'Shape'. Something like:
 
 ```c++
@@ -400,15 +422,15 @@ public:
 
 In general a class with only pure virtual methods and a virtual destructor is called an *abstract class* or *interface* and is typically named as such (e.g. `ButtonInterface`, or similar). An interface class guarantees that all extending classes implement a specific method with a specific method signature.
 
-### 1.4 Special Methods
-#### 1.4.1 Constructor and Destructor
+### 1.4 Special Methods 特殊方法
+#### 1.4.1 Constructor and Destructor 构造和析构
 All classes have at least one constructor and a destructor, even if they are not explicitly defined. The constructor and destructor
 assist in managing the lifetime of the object. The constructor is invoked when an object is created and the destructor is invoked
 when an object is destroyed (either by going out of scope or explicitly using `delete`).
 
 The constructor establishes a [class invariant](https://softwareengineering.stackexchange.com/a/32755), a set of assertions guaranteed to be true during the lifetime of the object, which is then removed when the destructor is called.
 
-##### 1.4.1.1 Use of `explicit` in Constructors
+##### 1.4.1.1 Use of `explicit` in Constructors 构造器中‘explicit的用法’
 The `explicit` keyword should be used in single-argument constructors to avoid a situation in which the constructor is implicitly invoked when a single argument is given in place of an object. Consider the following `Array` class:
 
 ```c++
@@ -469,7 +491,7 @@ array.Print(Array(12345));
 
 and the previous `array.Print(12345)` is now a syntax error.
 
-##### 1.4.1.2 Member Initializer Lists
+##### 1.4.1.2 Member Initializer Lists 成员初始化列表
 Member initializer lists allow you to initialize member variables in the definition of a method. This turns out to provide
 some performance benefits for class-type member variables, since a call to the default constructor is avoided. For POD (plain old data)
 like ints and floats, though, it is the same as initializing them in the body of the method.
@@ -509,7 +531,7 @@ More on these operators can be found [here](https://www.geeksforgeeks.org/new-an
 When manually allocating memory dynamically, it is the responsibility of the programmer to manage the memory and properly
 delete objects that have been allocated.
 
-#### 1.4.3 Copy Constructor and Copy Assignment
+#### 1.4.3 Copy Constructor and Copy Assignment 拷贝构造与赋值
 Copy constructors and copy assigment operators allow one object to be constructed or assigned a copy of another object directly:
 ```c++
 Foo a(10);
@@ -545,7 +567,7 @@ public:
 
 Note that the compiler will always provide a default constructor, a default copy constructor, and a default copy assignment operator, so for simple cases (like this trivial example) you will not have to implement them yourself. More info on this can be found [here](https://stackoverflow.com/questions/4172722/what-is-the-rule-of-three).
 
-#### 1.4.4 Move Constructor and Move Assignment
+#### 1.4.4 Move Constructor and Move Assignment 移动构造和移动
 Sometimes instead of performing a copy you instead wish to completely move data from one object to another. This requires the use
 of a move constructor and move assignement operator.
 
@@ -598,7 +620,7 @@ move assignment operator to move the data to our object.
 
 A programming idiom called ['copy and swap'](https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom) makes use of the move constructor and can be a useful idiom.
 
-### 1.5 Operator Overloading
+### 1.5 Operator Overloading 运算符重载
 Operators such as `+`, `-`, `*`, etc. are familiar and ubiquitous when working with simple data types like integers and floating point
 numbers. These operators as well as others can also be overloaded to provide a clear syntactic meaning to your own classes. For example,
 when working with linear algebra you can overload the `+` operator to perform an element-wise addition of two vectors. Here's a brief
@@ -713,7 +735,7 @@ int main() {
 
 You can also similiarly overload the input stream operator (`>>`), and can read more about the various operators [here](http://en.cppreference.com/w/cpp/language/operators).
 
-### 1.6 Templates
+### 1.6 Templates 模板
 Templates are a very powerful abstraction allowing you to generate compile-time methods/classes/etc. for any number of types while
 writing only one implementation.
 
@@ -781,7 +803,7 @@ int main() {
 
 Read more about templates [here](https://www.geeksforgeeks.org/templates-cpp/) and [here](http://en.cppreference.com/w/cpp/language/templates).
 
-## 2.0 General C++ Syntax
+## 2.0 General C++ Syntax 通用C++语法
 ### 2.1 Namespaces
 In a large production project you may have thousands of symbols for various types, variables, methods, and so on. To avoid symbol names conflicting
 with one another you can use namespaces to logically separate symbol names in to broad categories. Namespaces are an inherent feature of C++; when you
