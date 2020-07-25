@@ -146,7 +146,7 @@ The getters and setters here don't do much, but you could imagine limiting the n
 
 > NOTE: Regarding the use of `this->` in a class definition, there are places where it's strictly necessary for readability, e.g. when your method parameter shares the exact same name as a member variable, you use `this->` to avoid what's called shadowing. However, some prefer to always use `this->` explicitly regardless of whether it's necessary.
 
-#### 1.1.3 Class Utilization (Another `.cpp` file)
+#### 1.1.3 Class Utilization (Another `.cpp` file) 类的使用（另一个.cpp文件）
 ```c++
 // File: main.cpp
 
@@ -283,10 +283,12 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-### 1.3 Class Polymorphism
+### 1.3 Class Polymorphism 类的多态
 Polymorphism describes a system in which a common interface is used to manipulate objects of different types. In essence various classes can inherit from a common interface through which they make certain guarantees about which methods/variables are available for use. By adhering to this common interface, one can use a pointer to an object of the base interface type to call the methods of any number of extending classes. Using polymorphism one can say "I don't care what type this really is; I know it implements `Foo()` and `Bar()` because it inherits from this interface", which is a pretty nifty feature.
+多态描述了一个用来操作不同类型对象的接口。本质上，不同的类可以通过确保方法或变量是可用的从而继承自相同的接口以供使用。通过绑定在统一的接口上，我们可以使用基类指针指向对象的接口来调用扩展类的方法。使用多态我们就可以说“我不关心它到底是什么类型的，我知道他实现了Foo()和Bar()的方法因为它继承自这些接口”，这是一个很俏皮的特征。
 
 The `virtual` keyword is used to ensure runtime polymorphism for class methods. Additionally, an overriding method can be forced by the compiler by not providing a default implementation in the interface, which is done by setting the method to `= 0`, as will be shown later.
+‘virtual’关键字用来确保类方法的运行时多态。另外，通过将方法设置为‘=0’从而不提供默认方法的实现，编译器必须强制覆盖这个方法，后续祥讲。
 
 #### 1.3.1 Motivation
 Let's consider a similar class hierarchy using shapes as previously discussed. Considering a shape to be any 3 or more sided polygon from which we can compute certain attributes (like the shape's area), let's extend from it to create a rectangle class from which we can set the length/width and a circle class in which you can set the radius. **In both cases, we want to be able to compute the area of the shape.** This is a key observation that we will expand upon later.
