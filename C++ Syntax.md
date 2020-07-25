@@ -197,10 +197,13 @@ Another important consideration: If you have getters and setters for all of your
 
 ### 1.2 Inheritance 继承
 A class can extend another class, meaning that the new class inherits all of the data from the other class, and can also override its methods, add new members, etc. Inheritance is the key feature required for [polymorphism](#13-class-polymorphism).
+一个类可以扩展另一个类，意味着新类继承另一个类的所有数据，也可以重写另一个类的方法，及增加成员，等等。继承是多态实现的一个关键特征。
 
 It is important to note that this feature is often overused by beginners and sometimes unnecessary hierarchies are created, adding to the overally complexity. There are some good alternatives such as [composition](https://en.wikipedia.org/wiki/Composition_over_inheritance) and [aggregation](https://stackoverflow.com/a/269535), although, of course, sometimes inheritance is exactly what is needed.
+有一点需要重点指出的是初学者经常过度创建不需要的层级结构，增加了系统整体的复杂性。即使有时候继承是确实所需的实现方法，还是需要指出composition和aggregation聚合也是非常重要的。
 
 **Example:** the class `Rectangle` can inherit from the class `Polygon`. You would then say that a `Rectangle` extends from a `Polygon`, or that class `Rectangle` is a sub-class of `Polygon`. In plain English, this means that a `Rectangle` is a more specialized version of a `Polygon`. Thus, all rectangles are polygons, but not all polygons are rectangles.
+例子：四边形类继承自多边形类。你可以说四边形类扩展了多边形类，也可以说四边形类是多边形类的子类。语言上来说，这表明四边形类是多边形类的更具体的指定。因此，所有四边形都是多边形，但并非所有多边形都是四边形。
 
 #### 1.2.1 `Rectangle` Declaration (`.h` file)
 ```c++
@@ -240,7 +243,7 @@ public:
 };
 ```
 
-> NOTE: The inheritance access specifier (`public`, `protected`, or `private`) is used to determine the [type of inheritance](https://www.tutorialspoint.com/cplusplus/cpp_inheritance.htm). If this is omitted then `private` inheritance is used by default. **Public inheritance is by far the most common type of inheritance**.
+> NOTE: The inheritance access specifier (`public`, `protected`, or `private`) is used to determine the [type of inheritance](https://www.tutorialspoint.com/cplusplus/cpp_inheritance.htm). If this is omitted then `private` inheritance is used by default. **Public inheritance is by far the most common type of inheritance**. 默认是private继承，可省略
 
 #### 1.2.2 `Rectangle` Definition (`.cpp` file)
 ```c++
@@ -310,7 +313,7 @@ private:
     double width;
 
 public:
-    // Constructor using a member initializer list instead of assignment in the method body
+    // Constructor using a member initializer list instead of assignment in the method body 使用初始化成员列表来进行初始化
     Rectangle(const double w, const double l) : width(w), length(l) {}
 
     // Compute the area of a rectangle
@@ -333,14 +336,15 @@ public:
 };
 ```
 
-> NOTE: As shown here, you can put multiple classes in a single header, although in practice unless you have a good reason for doing so it's probably best to use a separate header file per class.
+> NOTE: As shown here, you can put multiple classes in a single header, although in practice unless you have a good reason for doing so it's probably best to use a separate header file per class. 可在一个文件内放置多个类声明，除非你有充足的理由这么做。通常建议每个类分别放在不同的头文件中。
 
-> NOTE: I'm not using default value initialization for member variables (i.e. `double length = 0;`) and I'm using parentheses `()` instead of braces `{}` for the initializer list since older compilers (pre-C++11) may not support the new syntax.
+> NOTE: I'm not using default value initialization for member variables (i.e. `double length = 0;`) and I'm using parentheses `()` instead of braces `{}` for the initializer list since older compilers (pre-C++11) may not support the new syntax. 未使用默认的初始化器来初始化成员变量，使用括号而不是花括号初始化列表，新语法可能不受支持。？
 
-So, we have our two classes, `Rectangle` and `Circle`, but in this case inheriting from `Shape` isn't really buying us anything. To make use of polymorphism we need to pull the common `Area()` method into the base class as follows, by using virtual methods.
+So, we have our two classes, `Rectangle` and `Circle`, but in this case inheriting from `Shape` isn't really buying us anything. To make use of polymorphism we need to pull the common `Area()` method into the base class as follows, by using virtual methods.在上述例子中，‘方形类’和‘圆形类’都继承自‘形状类’，但是继承自‘形状类’并未为我们进行任何工作。为了利用多态，我们将通用的Area()方法引入到基类中，作为虚方法。
 
 #### 1.3.2 Virtual Methods 虚方法
 Imagine you want to have a pointer to a shape with which you want to compute the area of that shape. For example, maybe you want to hold shapes in some sort of data structure, but you don't want to limit yourself to just rectangles or just circles; you want to support all objects that call themselves a 'Shape'. Something like:
+假如你有一个指向形状的指针，你想计算这个形状的面积。例如，也许你想在一些类型的数据结构中存放形状信息，但是你不想把自己限制在方形类或者圆形类中；你想支持所有可以称为形状类的对象。
 
 ```c++
 Rectangle rectangle(2.0, 5.0);
@@ -357,6 +361,7 @@ unknown-shape->Area();  // Returns 3.14...
 ```
 
 The way to achieve this is to use the `virtual` keyword on the base class methods, which specifies that when a pointer to a base class invokes the method of an object that it points to, it should determine, at runtime, the correct method to invoke. That is, when `unknown_shape` points to a `Rectangle` it invokes `Rectangle::Area()` and if `unknown_shape` points to a `Circle` it invokes `Circle::Area()`.
+上述实现的实现方式是在基类方法前加上、‘virtual’关键字，这指明了当基类指针调用方法时，应该是，运行时，确定，正确的调用函数。也就是说，基类指针指向什么类型的子对象，就调用哪个子对象的相应方法。
 
 Virtual methods are employed as follows:
 
@@ -400,6 +405,7 @@ public:
     // NOTE: there is an 'override' keyword that was introduced in C++11 and is optional: it is used
     // to enforce that the method is indeed an overriding method of a virtual base method at compile time
     // and is used as follows:
+    // C++11引进了可选的override关键字，用来在编译时确保这个方法会覆盖基类的虚方法。
     double Area() const override {
         return M_PI * radius * radius; // pi*r^2
     }
@@ -407,12 +413,15 @@ public:
 ```
 
 > NOTE: It is very important that a default virtual destructor was included after adding the virtual `Area()` method to the base class. Whenever a base class includes even a single virtual method, it must include a virtual destructor so that the correct destructor(s) are called in the correct order when the object is eventually deleted.
+有一点很重要：挡在基类中指定虚的Area（）方法时，一个默认的虚析构器也被包含进来了。不论何时，一个基类甚至只包含一个虚方法，他必须包含一个虚的析构器，以便当对象最终被删除时可以调用正确的析构器。
 
 This is called runtime polymorphism because the decision of which implementation of the `Area()` method to use is determined during program execution based on the type that the base is pointing at. It is implemented using [the virtual table](https://www.learncpp.com/cpp-tutorial/125-the-virtual-table/) mechanism. In a nutshell: it is a little more expensive to use but it can be immensely useful. There is also compile-time polymorphism. Here is more on the [differences between them](https://www.geeksforgeeks.org/polymorphism-in-c/).
+这被称为运行时多态，因为Area()方法的实现方式是在程序运行期间根据基类指针指向的对象类型来确定的。这通过虚函数表的机制实现。总之：它有一点昂贵，但是有很大的用处。除了运行时多态，还有编译时多态。
 
 In the example above, if a class extends from `Shape` but does not include an override of `Area()` then calling the `Area()` method will invoke the base class method which (in the implementation above) returns `0.0`.
-
+上面的例子中，如果从形状类中扩展但并未覆盖Area（）方，调用时会直接调用基类的Area（）方法。
 In some cases, you may want to **enforce** that sub-classes implement this method. This is done by not providing a default implementation, thus making it what is called a *pure virtual* method.
+在一些例子中，你可能在这些方法中加强子类的实现。这通过不提供默认实现来达到目标，因此称之为“纯虚”方法。
 
 ```c++
 class Shape {
@@ -423,14 +432,17 @@ public:
 ```
 
 In general a class with only pure virtual methods and a virtual destructor is called an *abstract class* or *interface* and is typically named as such (e.g. `ButtonInterface`, or similar). An interface class guarantees that all extending classes implement a specific method with a specific method signature.
+通常，只有虚析构器和虚析构函数的类被称为抽象基类或接口类。接口类保证了所有的扩展通过特定的方法签名实现了特定的方法。
 
 ### 1.4 Special Methods 特殊方法
 #### 1.4.1 Constructor and Destructor 构造和析构
 All classes have at least one constructor and a destructor, even if they are not explicitly defined. The constructor and destructor
 assist in managing the lifetime of the object. The constructor is invoked when an object is created and the destructor is invoked
 when an object is destroyed (either by going out of scope or explicitly using `delete`).
+所有的类至少有一个构造器和析构器，虽然他们并不是显式定义的。构造和析构协助管理对象的声明周期。这俩货分别在对象的创建和销毁时被调用。
 
 The constructor establishes a [class invariant](https://softwareengineering.stackexchange.com/a/32755), a set of assertions guaranteed to be true during the lifetime of the object, which is then removed when the destructor is called.
+构造器建立一个类不变量—————一系列断言用来保证对象在生命周期中的正确性，类不变量在析构函数被调用时删除。？
 
 ##### 1.4.1.1 Use of `explicit` in Constructors 构造器中‘explicit的用法’
 The `explicit` keyword should be used in single-argument constructors to avoid a situation in which the constructor is implicitly invoked when a single argument is given in place of an object. Consider the following `Array` class:
@@ -497,6 +509,7 @@ and the previous `array.Print(12345)` is now a syntax error.
 Member initializer lists allow you to initialize member variables in the definition of a method. This turns out to provide
 some performance benefits for class-type member variables, since a call to the default constructor is avoided. For POD (plain old data)
 like ints and floats, though, it is the same as initializing them in the body of the method.
+成员初始化列表允许你在方法定义的时候初始化成员变量。这会为类类型的成员变量提供一些性能提升，原因是避免了对于默认构造函数的调用。对于POD类型，是和在方法体中初始化的效果是一样的。
 
 ```c++
 class Car {
@@ -523,10 +536,12 @@ Car(const int year, const int miles, const std::string & make) {
 Since C++11 initializer lists have some added functionality and curly braces `{}` can be used instead of parentheses `()` in the
 initializer list, but to maintain compatibility with older compilers you may want to use parentheses. The same applies in general
 to initialization syntax when creating objects. Many people prefer braces, and in some cases it's necessary (e.g. vector containing [100, 1] or a vector of one hundred 1s?), but to support older compilers you may consider using parentheses.
+C++11引入了花括号的成员初始化方法，可作为括号成员初始化方法的替代。但是为了兼容旧的编译器，你可以考虑使用括号。
 
 #### 1.4.2 `new` and `delete`
 The `new` and `delete` operators (and their array counterparts, `new[]` and `delete[]`) are operators used to dynamically allocate
 memory for objects, much like C's `malloc()` and `free()`.
+new 和delete 运算符动态分配对象的内存，很像C语言的malloc（）和free（）
 
 More on these operators can be found [here](https://www.geeksforgeeks.org/new-and-delete-operators-in-cpp-for-dynamic-memory/).
 
@@ -568,10 +583,12 @@ public:
 ```
 
 Note that the compiler will always provide a default constructor, a default copy constructor, and a default copy assignment operator, so for simple cases (like this trivial example) you will not have to implement them yourself. More info on this can be found [here](https://stackoverflow.com/questions/4172722/what-is-the-rule-of-three).
+编译器通常会提供默认的构造函数、默认的复制构造函数、默认的赋值运算符操作。
 
 #### 1.4.4 Move Constructor and Move Assignment 移动构造和移动
 Sometimes instead of performing a copy you instead wish to completely move data from one object to another. This requires the use
 of a move constructor and move assignement operator.
+有时候你想要从一个对象到另一个的完全移动数据而不是复制。这就需要移动构造器和移动赋值运算符。
 
 ```c++
 class Movable {
@@ -581,17 +598,17 @@ private:
 public:
     Movable(Foo data) : data_ptr(new Foo(data)) {}
 
-    // Move constructor
+    // Move constructor 移动构造函数
     Movable(Movable && m) {
-        // Point to the other object's data
+        // Point to the other object's data 指向另一个对象的数据
         data_ptr = m.data_ptr;
 
-        // Remove the other object's data pointer by
-        // setting it to nullptr
+        // Remove the other object's data pointer by 移除另一个数据的指针通过
+        // setting it to nullptr 将其设置为nullptr
         m.data_ptr = nullptr;
     }
 
-    // Move assignment operator
+    // Move assignment operator 移动赋值运算符
     Movable & operator=(Movable && m) {
         data_ptr = m.data_ptr;
         m.data_ptr = nullptr;
@@ -605,6 +622,7 @@ public:
 ```
 
 The move constructor and assignment operator can be used as follows:
+移动构造函数和移动赋值操作可使用如下方法应用
 
 ```c++
 Movable Bar() {
@@ -619,7 +637,7 @@ int main() {
 
 Since `Bar()` creates an object that won't be used elsewhere and is deleted after the call, we can use the move constructor or
 move assignment operator to move the data to our object.
-
+因为Bar（）创建了不会在其他地方使用且用后即弃的对象，我们可以用移动构造器或移动赋值操作来将其数据移动到我们的对象上。
 A programming idiom called ['copy and swap'](https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom) makes use of the move constructor and can be a useful idiom.
 
 ### 1.5 Operator Overloading 运算符重载
@@ -740,6 +758,7 @@ You can also similiarly overload the input stream operator (`>>`), and can read 
 ### 1.6 Templates 模板
 Templates are a very powerful abstraction allowing you to generate compile-time methods/classes/etc. for any number of types while
 writing only one implementation.
+模板是一个非常有用的抽象工具，可生成编译时的方法、类等。通过书写一种实现可以生成一系列类型。
 
 Say you have a method that adds two floating point number together, and another to add two integers together:
 
@@ -770,6 +789,7 @@ int main() {
     Add<int>(3, 5);		    // int version
     Add<double>(3.2, 5.8);  // double
     Add(3.45f, 5.0f);	    // implicit float version: we leave off the <float> here, since it can deduce the type from the context
+                            // 隐式类型的浮点数版本：省略<float>类型参数，因为我们可以从参数推导出类型
 
     Complex a {1, 2};	    // Custom class
     Complex b {5, 3};
@@ -779,13 +799,15 @@ int main() {
 
 In this simple example the compiler would generate four different methods, one for each type. Templating allows you to write more
 concise and modular code at the expense of generating a larger executable (code bloat).
+在这个简单的例子中，编译器对于每种类型参数，生成四种不同的类型，模板允许你书写更精确更模块化的代码，生成一系列可执行的代码块。
 
 Templates are especially useful to create class templates. Class templates must be completely defined in a single header file.
+创建类模板的过程中模板尤其重要。类模板必须在一个头文件中完整定义。
 
 ```c++
 // File: storage.h
 
-template <class T>      // <--- 'class' is synonymous with 'typename'
+template <class T>      // <--- 'class' is synonymous with 'typename' 可用class或typename
 class Container {
 private:
     T data;
@@ -810,9 +832,11 @@ Read more about templates [here](https://www.geeksforgeeks.org/templates-cpp/) a
 In a large production project you may have thousands of symbols for various types, variables, methods, and so on. To avoid symbol names conflicting
 with one another you can use namespaces to logically separate symbol names in to broad categories. Namespaces are an inherent feature of C++; when you
 create a class and refer to a method as `ClassName::Method()` you are essentially using a namespace feature intrinsic to classes.
+在大型的生产项目中，你可能有上千种符号和不同的类型，变量，方法，等等。为了避免符号名互相冲突，你可以使用命名空间用来在逻辑上用更宽阔的分组来区分符号名字。命名空间是C++的固有属性；当你创建一个类并用‘ClassName::Method()’方法来指代这个方法，你本质上是使用了类的固有的命名空间特征。
 
 For a brief namespace example, suppose that you have two data structures, both of which implement a `Node` class. In the following code, namespaces
 are used to allow the compiler (and the programmer) to distinguish between the two types.
+一个简明的命名空间例子，假如你有两个数据结构，他们都是类‘Node’的对象。在后续的代码中，就可使用命名空间使编译器或程序员区分这两种类型。
 
 ```c++
 // File: list.h
@@ -863,7 +887,7 @@ sort of undermines the point of using namespaces in the first place.
 #include <iostream>
 using namespace std;
 
-cout << "Hello, World" << endl;             // <--- BAD: pollutes the global namespace
+cout << "Hello, World" << endl;             // <--- BAD: pollutes the global namespace 污染全局命名空间
 ```
 
 ```c++
@@ -872,26 +896,30 @@ cout << "Hello, World" << endl;             // <--- BAD: pollutes the global nam
 std::cout << "Hello, World" << std::endl;   // <--- GOOD: It's clear that you're using symbols from the standard namespace
 ```
 
-### 2.2 References and Pointers
+### 2.2 References and Pointers 引用和指针
 Those familiar with C will be very intimately acquainted with pointers. C++ adds the concept of references, which is a powerful way to have *some* of the features of
 pointers while avoiding some of the pitfalls. Later versions of C++ also add [smart pointers](https://docs.microsoft.com/en-us/cpp/cpp/smart-pointers-modern-cpp?view=vs-2019),
 which allow for better memory management and scoping via `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr`, as compared to traditional raw pointers.
+熟悉C语言的人也会非常熟悉指针的概念。C++增加了引用的概念，引用时一个强大的工具可以有一些指针的特征并避免了一些陷阱。新版本的C++也增加了智能指针，可以达到更好的内存管理的效果。
 
 Raw pointers in C++ behave exactly the same way as they do in C: a pointer variable stores the address of whatever it is pointing to. You can think of pointers as
 essentially storing a link to another piece of data. You can access the data that the pointer points to with the `->` operator, or dereference it with the `*` operator.
+C++中的原始指针和C中的是一毛一样的：指针变量存放着不管存放什么类型玩意儿的地址。你可以认为指针本质上是存放在另一个数据块上的链接。可以用箭头运算符获取指针指向的数据，也可以用星号解引用指针变量。
 
 References are more akin to an alias. References cannot be `NULL` or `nullptr`, and references cannot be reassigned to reference something else after they have been created.
 Additionally, references do not take up extra memory; they share the same address as whatever they reference to. References cannot have multiple levels of indirection (pointers can),
 and there is no reference arithmetic like there is for pointers. You can access the underlying data of a reference directly by using the reference itself: that is, if it's a reference
 to an integer it can be used as an integer. If it's a reference to a class you can access the class members directly with the `.` operator.
+引用更类似于别名。引用不能为空，引用也不能在创建后重引用到其他对象。另外，引用也不占用额外的空间，引用和他指向的对象共享相同的地址。引用不能有不同级别的重定向（指针可以），也没有引用算法。可通过使用引用本身来直接使用引用指向的数据。引用可直接使用点成员运算符。
 
 Although pointers are incredibly powerful, references are generally much safer, especially when passing objects to methods using pass-by-reference. It is very common in
 C++ code to pass an object as a `const` reference (if the data should be unmutable within the method) or a non-const reference rather than a raw pointer as is required in C.
+即使指针异常强大，引用通常更加安全，特别是引用传参的时候。C++中经常使用const引用或non-const引用而不是像C中那样的原始指针。
 
 More on [references vs pointers here](https://stackoverflow.com/a/57492).
 
 In the following code, assume a 32-bit system, in which case the size of a pointer variable is 4 bytes, and that the stack grows towards higher memory addresses.
-
+以下代码，32位机器，指针变量占4字节，栈往高内存地址方向增长
 ```c++
 // Pointers
 int a = 10;                     // Ends up at memory address '0x2A000084', for example
@@ -934,6 +962,7 @@ int & ref_c;                        // ERROR! References must be initialized at 
 Perhaps the most widely used aspect of references is to pass objects by reference (sometimes constant reference) to a method. To avoid hammering the stack with
 large objects when you pass them by value it is nearly always preferrable to pass by reference, which is the term used when using either a reference *or* a pointer.
 Using a reference allows you to pass any size object by reference, while still allowing you to access the object directly.
+引用最广泛的应用是引用传参。
 
 ```c++
 // Pass by reference using a const reference
@@ -944,7 +973,7 @@ void Foo(const Bar & bar) {
         // ...
     }
 
-    bar.SetValue(10);   // ERROR! Cannot modify a const reference!
+    bar.SetValue(10);   // ERROR! Cannot modify a const reference! 不能改变const引用
 }
 
 // Pass by reference using a non-const reference
@@ -955,26 +984,27 @@ void Foo(Bar & bar) {
         // ...
     }
 
-    bar.SetValue(10);   // Modifies 'bar' and thus whatever 'bar' references
+    bar.SetValue(10);   // Modifies 'bar' and thus whatever 'bar' references 可改变
 }
 ```
 
 By passing an object by reference using a reference instead of a pointer you:
-* Don't need to check for `NULL` or `nullptr` since references cannot be null
-* Can access the referenced object's data directly instead of using the `->` operator or dereferencing a pointer
-* Make it clearer which parameters are meant to be *input* parameters and which are meant to be *output* parameters by using
-  `const` to denote strictly input parameters
-* Gain the benefits of both passing by value and passing by reference since you don't need to use a lot of memory on the stack for your object
+* Don't need to check for `NULL` or `nullptr` since references cannot be null 不必检查是否空值
+* Can access the referenced object's data directly instead of using the `->` operator or dereferencing a pointer 不必箭头成员运算符或解引用
+* Make it clearer which parameters are meant to be *input* parameters and which are meant to be *output* parameters by using 更清晰参数的特征
+  `const` to denote strictly input parameters 严格指定参数是否const的
+* Gain the benefits of both passing by value and passing by reference since you don't need to use a lot of memory on the stack for your object 引用传参，内存占用少
 
 Thus, passing by reference using a `const` reference is essentially the same as passing by value, but you avoid copying the object onto the stack. Passing by reference
 using a non-const reference is essentially the same as passing by reference using a pointer, but you are guaranteed that it is not null and it's as if the pointer
 is effectively dereferenced.
+传const引用和传值本质一样，但是避免了复制对象到栈中。传non-const引用本质和传指针一样，但是它还保证了非空，就像解引用过的指针一样。
 
-### 2.3 Keywords
+### 2.3 Keywords 关键词
 [Reference](http://en.cppreference.com/w/cpp/keyword)
 
 #### 2.3.1 General Keywords
-[`asm`](http://en.cppreference.com/w/cpp/language/asm)
+[`asm`](http://en.cppreference.com/w/cpp/language/asm) ？？？
 [`auto`](http://en.cppreference.com/w/cpp/language/auto)
 [`const`](http://en.cppreference.com/w/cpp/language/cv)
 [`constexpr` (*since C++11*)](http://en.cppreference.com/w/cpp/language/constexpr)
